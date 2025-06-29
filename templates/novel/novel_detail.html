@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ novel.title }} - 简单小说网站{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- 小说信息 -->
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            {% if novel.cover %}
+            <img src="{{ novel.cover.url }}" class="card-img-top" alt="{{ novel.title }}">
+            {% else %}
+            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 300px;">
+                <i class="fas fa-book fa-4x text-muted"></i>
+            </div>
+            {% endif %}
+            <div class="card-body">
+                <h5 class="card-title">{{ novel.title }}</h5>
+                <p class="card-text">
+                    <small class="text-muted">
+                        <i class="fas fa-user"></i> 作者：{{ novel.author }}<br>
+                        <i class="fas fa-tag"></i> 分类：{{ novel.category.name }}<br>
+                        <i class="fas fa-eye"></i> 阅读：{{ novel.view_count }}<br>
+                        <i class="fas fa-file-word"></i> 字数：{{ novel.word_count }}<br>
+                        <i class="fas fa-list"></i> 章节：{{ total_chapters }}<br>
+                        {% if novel.is_completed %}
+                        <span class="badge bg-success">已完结</span>
+                        {% else %}
+                        <span class="badge bg-warning">连载中</span>
+                        {% endif %}
+                    </small>
+                </p>
+                {% if latest_chapter %}
+                <a href="{% url 'novel:chapter_detail' latest_chapter.pk %}" class="btn btn-primary">
+                    <i class="fas fa-play"></i> 开始阅读
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- 小说简介 -->
+    <div class="col-md-8 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-info-circle"></i> 小说简介</h5>
+            </div>
+            <div class="card-body">
+                {% if novel.description %}
+                <p class="card-text">{{ novel.description|linebreaks }}</p>
+                {% else %}
+                <p class="text-muted">暂无简介</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 章节列表 -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-list"></i> 章节列表</h5>
+                <span class="badge bg-primary">{{ total_chapters }} 章</span>
+            </div>
+            <div class="card-body">
+                {% if chapters %}
+                <div class="row">
+                    {% for chapter in chapters %}
+                    <div class="col-md-6 col-lg-4 mb-2">
+                        <a href="{% url 'novel:chapter_detail' chapter.pk %}" class="text-decoration-none">
+                            <div class="card novel-card">
+                                <div class="card-body py-2">
+                                    <h6 class="card-title mb-1">{{ chapter.title }}</h6>
+                                    <small class="text-muted">
+                                        <i class="fas fa-file-word"></i> {{ chapter.word_count }} 字
+                                    </small>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <!-- 分页 -->
+                {% if chapters.has_other_pages %}
+                <nav aria-label="Chapter navigation" class="mt-3">
+                    <ul class="pagination justify-content-center">
+                        {% if chapters.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ chapters.previous_page_number }}">上一页</a>
+                        </li>
+                        {% endif %}
+                        
+                        {% for num in chapters.paginator.page_range %}
+                        {% if chapters.number == num %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ num }}</span>
+                        </li>
+                        {% elif num > chapters.number|add:'-3' and num < chapters.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                        </li>
+                        {% endif %}
+                        {% endfor %}
+                        
+                        {% if chapters.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ chapters.next_page_number }}">下一页</a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+                {% else %}
+                <p class="text-muted text-center">暂无章节</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
