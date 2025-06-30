@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ chapter.title }} - {{ novel.title }}{% endblock %}
+
+{% block content %}
+<!-- 面包屑导航 -->
+<nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'novel:index' %}">首页</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'novel:novel_detail' novel.pk %}">{{ novel.title }}</a></li>
+        <li class="breadcrumb-item active">{{ chapter.title }}</li>
+    </ol>
+</nav>
+
+<!-- 章节信息 -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">{{ chapter.title }}</h4>
+                    <div>
+                        <span class="badge bg-primary">{{ novel.title }}</span>
+                        <span class="badge bg-secondary">{{ chapter.chapter_number }} 章</span>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="chapter-content">
+                    {{ chapter.content|linebreaks }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 导航按钮 -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between">
+            {% if prev_chapter %}
+            <a href="{% url 'novel:chapter_detail' prev_chapter.pk %}" class="btn btn-outline-primary">
+                <i class="fas fa-chevron-left"></i> 上一章：{{ prev_chapter.title|truncatechars:20 }}
+            </a>
+            {% else %}
+            <button class="btn btn-outline-secondary" disabled>
+                <i class="fas fa-chevron-left"></i> 已经是第一章
+            </button>
+            {% endif %}
+            
+            <a href="{% url 'novel:novel_detail' novel.pk %}" class="btn btn-outline-info">
+                <i class="fas fa-list"></i> 章节列表
+            </a>
+            
+            {% if next_chapter %}
+            <a href="{% url 'novel:chapter_detail' next_chapter.pk %}" class="btn btn-outline-primary">
+                下一章：{{ next_chapter.title|truncatechars:20 }} <i class="fas fa-chevron-right"></i>
+            </a>
+            {% else %}
+            <button class="btn btn-outline-secondary" disabled>
+                已经是最后一章 <i class="fas fa-chevron-right"></i>
+            </button>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- 小说信息卡片 -->
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-info-circle"></i> 小说信息</h6>
+            </div>
+            <div class="card-body">
+                <p class="mb-1"><strong>标题：</strong>{{ novel.title }}</p>
+                <p class="mb-1"><strong>作者：</strong>{{ novel.author }}</p>
+                <p class="mb-1"><strong>分类：</strong>{{ novel.category.name }}</p>
+                <p class="mb-1"><strong>字数：</strong>{{ novel.word_count }}</p>
+                <p class="mb-0"><strong>阅读量：</strong>{{ novel.view_count }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-file-text"></i> 章节信息</h6>
+            </div>
+            <div class="card-body">
+                <p class="mb-1"><strong>章节：</strong>{{ chapter.chapter_number }}</p>
+                <p class="mb-1"><strong>字数：</strong>{{ chapter.word_count }}</p>
+                <p class="mb-1"><strong>创建时间：</strong>{{ chapter.created_time|date:"Y-m-d H:i" }}</p>
+                <p class="mb-0">
+                    <strong>状态：</strong>
+                    {% if novel.is_completed %}
+                    <span class="badge bg-success">已完结</span>
+                    {% else %}
+                    <span class="badge bg-warning">连载中</span>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.chapter-content {
+    font-family: "Microsoft YaHei", "SimSun", serif;
+    line-height: 2;
+    font-size: 16px;
+    color: #333;
+}
+
+.chapter-content p {
+    margin-bottom: 1em;
+    text-indent: 2em;
+}
+
+@media (max-width: 768px) {
+    .chapter-content {
+        font-size: 14px;
+        line-height: 1.8;
+    }
+}
+</style>
+{% endblock %} 

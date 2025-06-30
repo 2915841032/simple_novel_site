@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+
+{% block title %}首页 - 简单小说网站{% endblock %}
+
+{% block content %}
+<!-- 轮播图 -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div id="carouselNovels" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-indicators">
+                {% for novel in latest_novels|slice:":3" %}
+                <button type="button" data-bs-target="#carouselNovels" data-bs-slide-to="{{ forloop.counter0 }}" 
+                        {% if forloop.first %}class="active"{% endif %}></button>
+                {% endfor %}
+            </div>
+            <div class="carousel-inner">
+                {% for novel in latest_novels|slice:":3" %}
+                <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                    <div class="card bg-dark text-white">
+                        <div class="row g-0">
+                            <div class="col-md-4">
+                                {% if novel.cover %}
+                                <img src="{{ novel.cover.url }}" class="img-fluid rounded-start" alt="{{ novel.title }}">
+                                {% else %}
+                                <div class="bg-secondary d-flex align-items-center justify-content-center" style="height: 200px;">
+                                    <i class="fas fa-book fa-3x text-white-50"></i>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-8">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ novel.title }}</h5>
+                                    <p class="card-text">{{ novel.description|truncatewords:30 }}</p>
+                                    <p class="card-text">
+                                        <small class="text-muted">
+                                            <i class="fas fa-user"></i> {{ novel.author }} | 
+                                            <i class="fas fa-eye"></i> {{ novel.view_count }} 阅读
+                                        </small>
+                                    </p>
+                                    <a href="{% url 'novel:novel_detail' novel.pk %}" class="btn btn-primary">阅读详情</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#carouselNovels" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon"></span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#carouselNovels" data-bs-slide="next">
+                <span class="carousel-control-next-icon"></span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- 最新小说 -->
+<div class="row mb-4">
+    <div class="col-12">
+        <h3 class="border-bottom pb-2">
+            <i class="fas fa-clock text-primary"></i> 最新小说
+        </h3>
+    </div>
+    {% for novel in latest_novels %}
+    <div class="col-md-4 col-lg-2 mb-3">
+        <div class="card novel-card h-100">
+            {% if novel.cover %}
+            <img src="{{ novel.cover.url }}" class="card-img-top" alt="{{ novel.title }}" style="height: 200px; object-fit: cover;">
+            {% else %}
+            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                <i class="fas fa-book fa-2x text-muted"></i>
+            </div>
+            {% endif %}
+            <div class="card-body">
+                <h6 class="card-title">{{ novel.title|truncatechars:15 }}</h6>
+                <p class="card-text small text-muted">{{ novel.author }}</p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <small class="text-muted">
+                        <i class="fas fa-eye"></i> {{ novel.view_count }}
+                    </small>
+                    <a href="{% url 'novel:novel_detail' novel.pk %}" class="btn btn-sm btn-outline-primary">阅读</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- 热门小说 -->
+<div class="row mb-4">
+    <div class="col-12">
+        <h3 class="border-bottom pb-2">
+            <i class="fas fa-fire text-danger"></i> 热门小说
+        </h3>
+    </div>
+    {% for novel in popular_novels %}
+    <div class="col-md-4 col-lg-2 mb-3">
+        <div class="card novel-card h-100">
+            {% if novel.cover %}
+            <img src="{{ novel.cover.url }}" class="card-img-top" alt="{{ novel.title }}" style="height: 200px; object-fit: cover;">
+            {% else %}
+            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                <i class="fas fa-book fa-2x text-muted"></i>
+            </div>
+            {% endif %}
+            <div class="card-body">
+                <h6 class="card-title">{{ novel.title|truncatechars:15 }}</h6>
+                <p class="card-text small text-muted">{{ novel.author }}</p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <small class="text-muted">
+                        <i class="fas fa-eye"></i> {{ novel.view_count }}
+                    </small>
+                    <a href="{% url 'novel:novel_detail' novel.pk %}" class="btn btn-sm btn-outline-primary">阅读</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- 分页 -->
+{% if is_paginated %}
+<nav aria-label="Page navigation">
+    <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">上一页</a>
+        </li>
+        {% endif %}
+        
+        {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+        <li class="page-item active">
+            <span class="page-link">{{ num }}</span>
+        </li>
+        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+        </li>
+        {% endif %}
+        {% endfor %}
+        
+        {% if page_obj.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}">下一页</a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock %} 
